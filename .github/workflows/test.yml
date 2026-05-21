@@ -1,0 +1,36 @@
+name: lint examples (dogfood)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Good examples must pass
+        run: |
+          set -e
+          for f in tech-writing/examples/0[135]-good-*.md; do
+            echo "=== $f ==="
+            python3 tech-writing/scripts/lint_article.py "$f"
+          done
+
+      - name: Bad examples must fail
+        run: |
+          set -e
+          for f in tech-writing/examples/0[24]-bad-*.md; do
+            echo "=== $f ==="
+            if python3 tech-writing/scripts/lint_article.py "$f"; then
+              echo "EXPECTED FAILURE BUT LINT PASSED: $f"
+              exit 1
+            fi
+            echo "(expected failure — OK)"
+          done
