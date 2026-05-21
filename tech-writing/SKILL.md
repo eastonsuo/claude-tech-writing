@@ -118,6 +118,25 @@ description: Use when writing tech articles, design docs, or "how X works" expla
 
 ## 风格约束（让所有图看起来是一套）
 
+### 文章开头加 `[toc]`
+
+文章第一行（标题 / frontmatter 之后）加一行 `[toc]`，让支持的 markdown 渲染器（Typora、印象笔记、Obsidian + TOC 插件、多数 Chinese markdown editor）自动生成目录。
+
+```markdown
+# 文章标题
+
+> 简短说明 / frontmatter
+
+[toc]
+
+## 1. 第一章
+...
+```
+
+**为什么默认加**：长文章（> 1000 字、≥ 3 个二级标题）没目录就很难导航。`[toc]` 这一行**对不支持的渲染器（GitHub / 部分 markdown 预览器）只是普通文字**，副作用为零；对支持的渲染器立刻有目录，**纯赚**。
+
+短文章（一页能看完）可以省略，但养成默认加的习惯不会错。
+
 ### 节点标签要让陌生人也能猜出 70% 含义
 
 - **节点 ID** 用 snake_case（不影响渲染，只是源码可读）
