@@ -1,185 +1,183 @@
 ---
 name: tech-writing
-description: Use when the user asks to write a technical article, design document, "how X works" explainer, architecture writeup, post-mortem, or technical blog post. Pushes diagrams (mermaid) to the front as a primary expressive tool — not decoration — while keeping each diagram precise, focused, and scaffolded with prose. Triggers on phrases like "write an article about…", "explain how … works", "document the design of …", "write a post-mortem / design doc", "写一篇关于…的文章", "解释一下…的原理/设计".
+description: Use when the user asks to write a technical article, design document, "how X works" explainer, architecture writeup, post-mortem, or technical blog post. Pushes diagrams (mermaid) to the front as a primary expressive tool — not decoration — while keeping each diagram precise, focused, and scaffolded with prose. Triggers on phrases like "写一篇关于…的文章", "解释一下…的原理/设计", "写个 design doc / 调研报告 / 复盘", "describe how X works", "document the design of X".
 ---
 
-# Tech writing — diagrams as a first-class tool, but each one held to a high bar
+# 写技术文章 — 多用图，但每张图都要画准
 
-## The core opinion: diagrams are systematically under-used in tech writing
+## 核心观点：技术写作里图被严重低估
 
-When you describe **structure / flow / timing** in prose, the reader has to mentally re-render it into a diagram — slow, tiring, and error-prone. A well-chosen diagram lets the reader see the relationship at a glance, often beating two hundred words of explanation.
+大段文字描述**结构 / 流程 / 时序**时，读者要在脑子里逐句重新"渲染"成一张图——慢、累、易偏差。一张恰当的图能让读者**一眼**看见关系，往往胜过两百字。
 
-So the default move when writing technical content isn't "consider a diagram only when I really need one." It's:
+所以写技术文章时的默认动作不是"等到觉得真的需要图才考虑画"，而是：
 
-> **After describing any non-trivial relationship, flow, or sequence, first ask "could a diagram go here?" — and only then decide it can't.**
+> **每讲完一个非平凡的关系 / 流程 / 时序，先问"这里能不能补一张图"，再决定不补。**
 
-Better to over-draw and trim than to under-draw from the start. The latter turns paragraphs that should have been diagrams into walls of text that readers skim and skip.
+宁可先多画、再删掉冗余的，也不要从一开始就"省着画"——后者会让本该有图的段落退化成读者懒得读完的密集文字。
 
-### Quick test for "should this be a diagram?"
+### 判断该不该补图的快速尺
 
-**Lean toward a diagram**:
-- The prose mentions 3+ distinct objects and the relationships between them
-- You're describing "first A, then B, in parallel C, returning to D" type flows
-- Multiple parties exchange messages over time (request-response, state transitions)
+**倾向画图**：
+- 文字里出现了 3 个以上对象 + 它们之间的关系
+- 描述了"先 A，再 B，并行 C，回到 D"这种流程
+- 涉及时间轴上多方来回（请求-响应、状态迁移）
 
-**Hard no — never a diagram**:
-- **5+ field comparisons, property enumerations, config catalogs → always a markdown table**.
-  Forcing these into `classDiagram` or label-heavy nodes makes the diagram explode; tables are the natural home for this kind of content.
-- Just listing a few facts in order → use a bullet list
-- Comparing two things on a few dimensions → use a table
+**绝对不画图（硬否决）**：
+- **5+ 字段的对照、属性枚举、配置项罗列 → 一律用 markdown 表格**
+  强行画成 `classDiagram` 或带字段的节点会让节点过大、整张图崩塌；表格才是这类信息的天然载体
+- 只是顺序列举几条事实 → 用列表
+- 只是对照两个东西的几个维度 → 用表格
 
-## Every diagram must earn its place
+## 每张图必须自证价值
 
-"More diagrams" is not "stuff diagrams everywhere." Each one has to pass three checks:
+"多用图"不等于"堆图"。每张图必须能通过下面三个检查：
 
-### 1. One diagram, one focus
+### 1. 一图一焦点
 
-Each diagram answers **one** question. Write it on the line above the diagram:
+每张图回答**一个**问题，写在图正上方一行：
 
-> The diagram below answers: "How many hops does a request take from X to Y?"
+> 下图回答：「请求从 X 到 Y 经过哪几跳？」
 
-Better to split into 3 small diagrams than cram one big one that answers two questions.
+宁可拆成 3 张小图，不要塞 1 张大图回答两件事。
 
-### 2. Complexity budget by diagram type
+### 2. 复杂度上限按图类型分级
 
-Different diagram types have different complexity dimensions — `sequenceDiagram` complexity comes from messages, not participants; `mindmap` is inherently divergent and can't be capped by node count. So per-type limits:
+不同图类型的"复杂度"含义不同——`sequenceDiagram` 的复杂度来自 messages 不是 participants，`mindmap` 本来就是发散的不能按节点数限。所以分级：
 
-| Diagram type | Limit |
+| 图类型 | 复杂度上限 |
 |---|---|
-| `flowchart` / `classDiagram` | nodes ≤ 12 |
-| `sequenceDiagram` | participants ≤ 8, messages ≤ 15 |
-| `stateDiagram-v2` | states ≤ 10, transitions ≤ 15 |
+| `flowchart` / `classDiagram` | 节点 ≤ 12 |
+| `sequenceDiagram` | participants ≤ 8，messages ≤ 15 |
+| `stateDiagram-v2` | states ≤ 10，transitions ≤ 15 |
 | `erDiagram` | entities ≤ 8 |
-| `mindmap` | level-2 nodes ≤ 6, leaves per level-2 ≤ 6 |
+| `mindmap` | 二级节点 ≤ 6，每个二级下的叶子 ≤ 6 |
 
-Crossing the limit almost always means the diagram is trying to convey two things — split it into two, each answering one question.
+超过上限基本意味着这张图想塞两件事——拆成两张，每张回答一个问题。
 
-### 3. Each diagram needs prose around it
+### 3. 每张图配两段文字
 
-- **Before**: 1-2 sentences saying "what this diagram will show you"
-- **After**: 3-5 sentences of reading guidance — call out key nodes, asymmetric edges, easily-missed corners
+- **图前**：1–2 句"这张图想让你看到什么"
+- **图后**：3–5 句"读图要点"——指出关键节点 / 不对称的边 / 容易忽略的角落
 
-Don't write "as shown below" and drop a diagram with no setup or follow-through.
+不要写"如图所示"然后扔个图走人。
 
-## Style constraints (so all diagrams in one piece look like a set)
+## 风格约束（让所有图看起来是一套）
 
-### Labels must be intelligible to strangers — the 70% test
+### 节点标签要让陌生人也能猜出 70% 含义
 
-- **Node IDs** use snake_case (purely for source readability, doesn't affect rendering)
-- **Display labels** must be short phrases a first-time reader can roughly guess. **No bare A/B/S1/Component1**:
-- ❌ `A[Component A]` `B[Service]` `S1[State 1]`
-- ✅ `apiserver["apiserver<br/>control plane"]` `worker["worker pool<br/>async processing"]`
+- **节点 ID** 用 snake_case（不影响渲染，只是源码可读）
+- **显示标签**必须是"读者第一次看就能猜出大概意思的短语"，**禁止裸 A/B/S1/Component1**
+- ❌ `A[组件 A]` `B[服务]` `S1[状态1]`
+- ✅ `apiserver["apiserver<br/>控制面"]` `worker["worker pool<br/>异步处理"]`
 
-**The IM-screenshot test**: take a screenshot of the diagram, drop it in a chat with people who haven't read the article. If they can guess ≥70% of nodes and edges' meaning, the diagram passes. If anyone asks "what's A?", it fails.
+**可读性测试**：把这张图截屏发到 IM 群里，没读过文章的人能猜出 ≥ 70% 节点和边的语义，才算合格。如果群里需要追问"这个 A 是啥"，就是不合格。
 
-### Label your edges
+### 边要带标签
 
-Unless the meaning is glaringly obvious, every edge gets a verb or condition label: `-->|"read"|`, `-->|"retry on timeout"|`, `-->|"success"|`. Bare arrows are only acceptable in the simplest linear chains (A → B → C).
+除非含义太明显，否则边一律标动词 / 条件：`-->|"读取"|`，`-->|"超时重试"|`，`-->|"成功"|`。裸箭头只在最简单的线性流（A → B → C）里允许。
 
-### Name your subgraphs
+### 子图分组要起名字
 
-Use `subgraph` to group related nodes, and give the subgraph a human name:
+相关节点用 `subgraph` 圈出，并给子图起人话名字：
 
 ```
-subgraph storage["persistence layer"]
+subgraph storage["持久化层"]
 ```
 
-Not `subgraph s1`.
+而不是 `subgraph s1`。
 
-### Stay consistent on direction
+### 方向一致
 
-All `flowchart` diagrams in the same article use the same direction (`TD` or `LR`) — don't mix. `sequenceDiagram` naturally flows top-down; pair it with `flowchart TD` for the most visually coherent piece.
+同一篇文章里所有 `flowchart` 用同一方向（`TD` 或 `LR`），不要混。`sequenceDiagram` 时间方向天然从上到下，配合 `flowchart TD` 视觉上最连贯。
 
-### Code references go in prose, not in node labels
+### 代码定位放散文里，不嵌进节点标签
 
-If the diagram is illustrating concrete code behavior, reference the location in surrounding prose: `src/foo.py:42`. Don't bake `apiserver[foo.py:42]` into the diagram.
+图旁如果要指源码位置，正文写 `src/foo.py:42`；不要在节点里塞 `apiserver[foo.py:42]`。
 
-**Why**: line numbers drift as code changes. Nodes should be stable abstractions. Embedding line numbers means every refactor requires editing the diagram, and nobody actually will.
+**原因**：行号会随代码变化漂移，节点应该稳定；行号嵌图意味着每次重构都要改图，没人会真的改。
 
-### Use color from a fixed semantic palette
+### 颜色按固定语义集复用
 
-Default to no color. When you do use color, pick from this palette and keep the meaning consistent across the entire article (**don't have red mean "error" in one diagram and "main path" in another**):
+默认不上色。用色时只从下面这套里挑，并整篇统一含义（**不要这张图红=错误，下张图红=主流程**）：
 
-| Meaning | Color | When |
+| 语义 | 颜色 | 适用 |
 |---|---|---|
-| Main path / current focus | warm yellow `#fff0aa` | Drawing attention to "look here" |
-| Success / completed | light green `#aaffaa` | Terminal states / OK branches |
-| Failure / exception | light red `#ffcccc` | Error branches |
-| External system / black box | grey `#f4f4f4` | Not the focus of this article |
-| Phase grouping | blue / orange / red gradient | Step 1 / 2 / 3 coloring |
+| 主流程 / 当前关注 | 暖黄 `#fff0aa` | 突出"看这里" |
+| 成功 / 完成 | 浅绿 `#aaffaa` | 终态 / OK 分支 |
+| 失败 / 异常 | 浅红 `#ffcccc` | 错误分支 |
+| 外部系统 / 黑盒 | 灰 `#f4f4f4` | 不属于本文重点 |
+| 阶段分组 | 蓝 / 橙 / 红渐进 | Step 1 / 2 / 3 着色 |
 
-Define with `classDef` and explain the color semantics in a sentence after the diagram.
+用 `classDef` 定义，在图后用一行说明色彩语义。
 
-### Color is never the only differentiator
+### 颜色不能是唯一的区分维度
 
-Once you use color, the diagram must also be readable in **dark mode + black-and-white print + with color-blindness**. That means key distinctions must **also** appear in:
+用色之后必须也能在 **dark mode + 黑白打印 + 色觉障碍**三种场景下读懂——这意味着关键差异要**同时**体现在：
 
-- **Shape**: `[rect]` `((circle))` `{diamond}` `[/parallelogram/]`
-- **Line style**: solid `-->` / dashed `-.->` / thick `==>`
-- **Text labels**: verbs/conditions on edges
+- **形状**：`[方]` `((圆))` `{菱形}` `[/平行四边形/]`
+- **线型**：实线 `-->` / 虚线 `-.->` / 粗线 `==>`
+- **文字标签**：边上的动词 / 条件
 
-Color is icing, never the only channel.
+颜色只是"锦上添花"，永远不是唯一信道。
 
-### Don't mix ASCII and mermaid
+### 不混用 ASCII 和 mermaid
 
-Pick one and stick with it across the whole piece. ASCII art tends to render less cleanly in GitHub, IDEs, and most markdown viewers compared to mermaid.
+通篇统一用 mermaid。ASCII art 在 GitHub / IDE / 多数 markdown 渲染器里看起来都不如 mermaid 干净。
 
-## Diagram-type quick reference
+## 图类型选择速查
 
-| To express | Use |
+| 你要表达 | 用 |
 |---|---|
-| Static relationships between modules (A contains B, A depends on C) | `flowchart` or `classDiagram` |
-| Messages exchanged over time | `sequenceDiagram` |
-| State machine for one object | `stateDiagram-v2` |
-| Data model (entities + fields + relationships) | `erDiagram` |
-| Proportions / flows | `sankey-beta` or `pie` |
-| Bird's-eye system architecture | `C4Context` or `flowchart` with `subgraph` |
-| Divergent knowledge tree | `mindmap` |
+| 模块之间静态关系（A 包含 B，A 依赖 C） | `flowchart` 或 `classDiagram` |
+| 消息在时间轴上来回 | `sequenceDiagram` |
+| 一个对象的状态机 | `stateDiagram-v2` |
+| 数据模型（实体 + 字段 + 关系） | `erDiagram` |
+| 比例 / 流量 | `sankey-beta` 或 `pie` |
+| 系统架构鸟瞰 | `C4Context` 或带 `subgraph` 的 `flowchart` |
+| 发散式知识树 | `mindmap` |
 
-## Anti-patterns (don't do these)
+## 反模式（不要这样画）
 
-- ❌ A `flowchart` with 25 nodes and crossing arrows
-- ❌ Node IDs are A/B/S1 with no display labels
-- ❌ Using `classDiagram` to enumerate 5+ fields (use a table)
-- ❌ Embedding `foo.py:42` in a node label
-- ❌ Distinguishing "main vs exception" with color alone, identical shape and line style (dies in dark mode)
-- ❌ Opening with "as shown below" and following with no prose explanation
-- ❌ Mixing mermaid and ASCII art in the same piece
+- ❌ 一张 `flowchart` 塞 25 个节点，箭头互相穿插
+- ❌ 节点 ID 是 A/B/S1 这种符号，没有显示标签
+- ❌ 用 `classDiagram` 列 5+ 字段做对照（用表格）
+- ❌ 在节点标签里嵌 `foo.py:42` 行号
+- ❌ 用颜色区分"主流程 vs 异常"但形状和线型完全一样（dark mode 失明）
+- ❌ 图前用"如图所示"套话开场、图后没有任何文字解读
+- ❌ 同一篇里 mermaid 和 ASCII art 混用
 
-## Workflow
+## 工作流程
 
-When you get a writing request, do this first — don't dive into prose:
+接到写文章请求时，先做一遍这个，不要直接开始码字：
 
-1. **List claims**: write down the 3-7 core claims the article will make
-2. **Pick the medium**: for each claim ask "would the reader grasp this fastest as prose, a table, or a diagram?" — **default toward diagrams, but respect the hard-no rules**
-3. **Write the diagram's question**: for each diagram-bound claim, write one sentence stating the question it answers
-4. **Draw**: check the per-type limit table; if you blow the cap, split
-5. **Write surrounding prose**: 2 paragraphs per diagram (before-hook and after-reading-guide)
-6. **Final review**:
-   - Delete any diagram that's purely decorative
-   - Look for paragraphs that should have a diagram but don't (≥3 objects with relationships, or multi-step flows)
-   - Check that color semantics stay consistent across the article
-7. **Run the linter**:
+1. **列 claim**：写出文章要讲的 3-7 个核心 claim
+2. **选载体**：对每个 claim，问："文字 / 表格 / 图，哪种最让读者一眼明白？" — **默认倾向多画图，但遇到硬否决规则就老实用表格**
+3. **写图前问题**：决定要画图的 claim 之后，每张图先用一句话写下"它要回答的问题"
+4. **画图**：按图类型查上限表，节点 / messages / states 超了就拆
+5. **写前后文字**：每张图前后补上 2 段（图前钩子 / 图后解读）
+6. **通篇审稿**：
+   - 删掉任何只是"装饰"的图
+   - 检查有没有应该有图但漏画的段落（出现 ≥ 3 对象 + 关系、或多步流程的地方）
+   - 检查全篇色彩语义是否一致
+7. **跑 lint**：
    ```bash
-   python3 ${CLAUDE_SKILL_DIR}/scripts/lint_article.py <your-file.md>
+   python3 ${CLAUDE_SKILL_DIR}/scripts/lint_article.py <生成的文件>
    ```
-   Fix every ❌. The script checks:
-   - Per-type complexity limits (nodes / participants / messages / states / transitions / entities)
-   - Edge-label coverage in flowcharts
-   - Subgraph naming
-   - Bare 1-2 char node IDs (A/B/S1)
-   - File:line references embedded in node labels
-   - Direction consistency across all flowcharts
-   - Prose presence before and after each diagram (≥30 chars)
+   看到任何 ❌ 都要修。脚本会检查：
+   - 各类图复杂度（节点 / participants / messages / states / transitions / entities）是否超限
+   - flowchart 的边标签覆盖率
+   - subgraph 是否有显示名字
+   - 单字母 / 双字母裸节点（A/B/S1）
+   - 节点标签里有没有嵌 `file.ext:行号`
+   - flowchart 方向是否全篇一致
+   - 每张图前后是否有 ≥ 30 字符的散文
 
-## Reference examples
+## 参考范例
 
-Before writing, skim 1-2 relevant examples under `${CLAUDE_SKILL_DIR}/examples/` to establish a style baseline:
+写之前先快速翻一两个 `${CLAUDE_SKILL_DIR}/examples/` 下最相关的范例，建立风格基线：
 
-- `01-good-flowchart-storage-layers.md` — layered architecture diagram (subgraphs + labeled edges + readable labels)
-- `02-bad-flowchart-too-many-nodes.md` — too many nodes + bare IDs + suggested split
-- `03-good-sequence-api-call.md` — clean request-response sequence
-- `04-bad-no-prose-around.md` — typical "no prose around the diagram" failure
-- `05-good-state-machine.md` — order lifecycle state machine
-
-(Examples are currently in Chinese; the diagrams themselves are language-agnostic. English translations welcome.)
+- `01-good-flowchart-storage-layers.md` — 分层架构图（subgraph + 标签边 + 人话标签）
+- `02-bad-flowchart-too-many-nodes.md` — 节点过多 + 裸 ID 反例 + 拆图建议
+- `03-good-sequence-api-call.md` — 干净的请求-响应时序图
+- `04-bad-no-prose-around.md` — 图前后无文字的典型反例
+- `05-good-state-machine.md` — 订单状态机

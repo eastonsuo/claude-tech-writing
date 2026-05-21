@@ -1,18 +1,67 @@
 # claude-tech-writing
 
-> A [Claude Code](https://code.claude.com) skill that pushes diagrams to the front of technical writing — and lints each one so they're actually useful.
+> 一个 [Claude Code](https://code.claude.com) skill：写技术文章时把 mermaid 图当一等公民对待，再用一个 lint 把每张图按死规则审一遍。
 
-When you ask Claude Code to write a technical article, design doc, or explainer, this skill makes it:
+**中文** | [English](README.en.md)
 
-1. Reach for diagrams (mermaid) at every non-trivial relationship, flow, or timing claim
-2. Stay within per-type complexity budgets (`flowchart` ≤ 12 nodes, `sequenceDiagram` ≤ 8 participants & ≤ 15 messages, etc.)
-3. Use self-explanatory labels — no bare `A` / `B` / `S1` nodes
-4. Wrap every diagram in 2 paragraphs of prose (setup + reading guide)
-5. Run a Python linter over the output to catch every rule violation
+---
 
-It's opinionated. The defaults are mine. Fork and tune.
+## 背景：为什么要做这个
 
-## Install
+写技术文章 / design doc / 复盘的时候，我长期被两件事卡住：
+
+### 1. 图被严重低估
+
+很多本该是图的关系、流程、时序，因为画图有摩擦——选图类型、调布局、写语法——就退化成了几段密集文字。读者读这种文字时要在脑子里把它再"渲染"成图，慢、累、易偏差。
+
+让 Claude Code 帮忙写技术文档时，这毛病一样有。CC 默认行为更接近"模仿样本"——你没立规矩，它就照默认套路出，倾向用文字而不是图。
+
+### 2. 画了图也不一定好
+
+经常踩的坑：
+
+- 一张图塞 30+ 节点的"系统全景"，最后谁也看不懂
+- 节点叫 `A` / `B` / `S1`，读者不知道每个圆圈代表什么
+- 边全是裸箭头，看不出每条边的语义（同步？异步？读？写？）
+- 图前没有"这张图想让你看到什么"的钩子，图后没有任何解读
+- 颜色乱用，dark mode 或灰度打印下完全失明
+- 5+ 字段对照硬画成 `classDiagram`，节点撑爆
+
+两个问题加起来：要么没图，要么图也救不了。
+
+## 这个 skill 要解决什么
+
+目标是把"用图把事情讲清楚"做成 CC 写技术内容时的**默认动作**，而不是事后才想到补：
+
+- **触发时机**是"写文章"，不是"画图"——你说「写一篇关于 X 的文章 / 解释 X 怎么工作」它就介入，不需要主动喊"画个图"
+- **每张图按硬指标审**：复杂度上限按图类型分级、节点标签必须人话化、边必须带标签、subgraph 必须有名字、5+ 字段对照一律改用表格、颜色不能是唯一区分维度……
+- **lint 跑得起来**：写完一稿 `python3 lint_article.py article.md` 看到一串 ❌ 就改，不靠主观判断
+
+观点是有立场的，默认数值是我个人取舍。**Fork 改阈值随便。**
+
+## 它能做的
+
+接到"写技术文章 / 解释 X 的设计 / 写个 design doc / 复盘"这类请求时，这个 skill 会让 Claude Code：
+
+1. **在每一个非平凡的关系 / 流程 / 时序点**先问"这里能不能补一张图"，而不是默认用文字
+2. **守住每种图类型的复杂度上限**：
+   - `flowchart` / `classDiagram` 节点 ≤ 12
+   - `sequenceDiagram` participants ≤ 8、messages ≤ 15
+   - `stateDiagram-v2` states ≤ 10、transitions ≤ 15
+   - `erDiagram` entities ≤ 8
+   - `mindmap` 二级节点 ≤ 6、每个二级下的叶子 ≤ 6
+3. **节点标签必须人话化**（不允许 `A` `B` `S1` 这种裸 ID）
+4. **每张图配两段散文**：前面 1-2 句钩子说"想让你看到什么"、后面 3-5 句"读图要点"
+5. **写完跑 lint** 把上面所有规则机器化查一遍
+
+## 它不做的
+
+- 不替你想清楚"要写什么"——它只在你已经决定写时介入
+- 不渲染 mermaid 验语法合法性——lint 只做静态规则匹配；要真渲染请自己装 `mermaid-cli` 跑 `mmdc`
+- 不支持 mermaid 以外的图（PlantUML / D2 / Graphviz 暂不在范围，PR 欢迎）
+- 不是行业标准——是一个人的写作品味写成的规则
+
+## 安装
 
 ```bash
 git clone https://github.com/eastonsuo/claude-tech-writing
@@ -20,22 +69,22 @@ cd claude-tech-writing
 ./install.sh
 ```
 
-That symlinks `tech-writing/` into `~/.claude/skills/tech-writing/`. Restart Claude Code if it's running.
+`install.sh` 把 `tech-writing/` 软链到 `~/.claude/skills/tech-writing/`。重启 Claude Code 即可。
 
-To uninstall: `rm ~/.claude/skills/tech-writing`.
+卸载：`rm ~/.claude/skills/tech-writing`。
 
-## Use
+## 使用
 
-The skill auto-invokes on prompts like:
+skill 在你给 Claude Code 发这类 prompt 时自动触发：
 
-- "Write an article about how X works"
-- "Explain the design of …"
-- "Document the architecture of …"
-- "Write a post-mortem / design doc / explainer"
+- 「写一篇关于 X 的文章」
+- 「解释一下 X 的原理 / 设计」
+- 「帮我写个 design doc / 调研报告 / 复盘」
+- 英文同样支持："write an article about…", "explain how … works", "document the design of …"
 
-Or invoke explicitly: `/tech-writing` followed by your prompt.
+也可以显式调用：`/tech-writing` + 你的请求。
 
-After Claude writes a draft, the linter runs as the last workflow step. You'll see output like:
+写完后 Claude 会自动跑 lint，输出类似这样：
 
 ```
 图 1 (行 5-26, 类型: flowchart, nodes: 9)
@@ -48,72 +97,62 @@ After Claude writes a draft, the linter runs as the last workflow step. You'll s
 === 共 2 张图，2 个问题 ===
 ```
 
-## What gets enforced
+## 检查的规则
 
-See [`tech-writing/SKILL.md`](tech-writing/SKILL.md) for the full skill spec. Headline rules:
+完整规则见 [`tech-writing/SKILL.md`](tech-writing/SKILL.md)（[英文版](tech-writing/SKILL.en.md)）。核心检查项：
 
-| Rule | Why |
+| 规则 | 为什么 |
 |---|---|
-| Per-type complexity budgets | A 25-node `flowchart` is two ideas in a trenchcoat |
-| Node labels readable to strangers (no `A` / `B`) | The "IM screenshot test" — share the diagram, see if outsiders get it |
-| Edges labeled with verbs or conditions | Bare arrows convey almost nothing |
-| Subgraphs have human-readable names | `subgraph storage["persistence layer"]`, not `s1` |
-| Code references in prose, not in node labels | Line numbers drift; nodes should be stable |
-| Colors from a fixed semantic palette, used consistently | Otherwise readers re-learn the legend every diagram |
-| Color is never the only differentiator | Dark mode + grayscale print + colorblindness |
-| Every diagram has prose before AND after | "As shown below" with no follow-up is wasted ink |
-| 5+ field comparison → always a table, never a diagram | Tables are the right tool; classDiagrams blow up |
+| 各图类型分级复杂度上限 | 30 节点的 flowchart 是把两件事塞进一个壳子里 |
+| 节点标签人话化（不允许 `A` / `B`） | "IM 截图测试"——把图截屏给没读过文章的人看，能不能猜出 ≥ 70% 语义 |
+| 边必须带动词 / 条件标签 | 裸箭头几乎传递不了信息 |
+| subgraph 必须有显示名字 | `subgraph storage["持久化层"]`，而不是 `s1` |
+| 代码定位写在散文里，不嵌节点标签 | 行号会随代码漂移；节点应该稳定 |
+| 颜色按固定语义集复用 | 否则读者每张图都要重新学色彩含义 |
+| 颜色不能是唯一区分维度 | dark mode + 灰度打印 + 色觉障碍三场景都要扛过 |
+| 每张图前后都要有散文 | "如图所示"然后断片 = 这张图等于没看 |
+| 5+ 字段对照一律用表格 | 表格才是这类信息的天然载体 |
 
-## Examples
+## 范例
 
-`tech-writing/examples/` ships 5 reference patterns the skill points Claude to:
+`tech-writing/examples/` 下有 5 个对照范例，写之前 Claude 会先翻一两个最相关的：
 
-- `01-good-flowchart-storage-layers.md` — what a well-scoped layered flowchart looks like
-- `02-bad-flowchart-too-many-nodes.md` — overcrowded, with a split suggestion
-- `03-good-sequence-api-call.md` — clean request-response sequence
-- `04-bad-no-prose-around.md` — diagram dropped without context
-- `05-good-state-machine.md` — order lifecycle
+- `01-good-flowchart-storage-layers.md` — 分层架构图（subgraph + 标签边 + 人话节点）
+- `02-bad-flowchart-too-many-nodes.md` — 节点过多 + 裸 ID 反例 + 拆图建议
+- `03-good-sequence-api-call.md` — 干净的请求-响应时序图
+- `04-bad-no-prose-around.md` — 图前后没散文的典型反例
+- `05-good-state-machine.md` — 订单状态机
 
-(Examples are currently in Chinese; English translations welcome via PR.)
+## 独立跑 lint
 
-## Lint by itself
-
-You can run the linter standalone on any markdown file, no Claude Code involved:
+不开 Claude Code 也能用——直接对任何 markdown 文件跑：
 
 ```bash
 python3 tech-writing/scripts/lint_article.py path/to/article.md
 ```
 
-Exit code 0 = clean, 1 = at least one ❌. Wire it into a pre-commit hook or CI if you're feeling rigorous.
+退出码 0 = 干净，1 = 至少有一个 ❌。可以挂到 pre-commit hook 或 CI 上。
 
-Zero dependencies — stdlib Python only.
-
-## Philosophy
-
-Most writing advice tells you to **trim**: cut the fluff, kill your darlings, less is more. That's good advice for prose.
-
-But it's wrong for diagrams. **Diagrams aren't over-used; they're systematically under-used.** The friction of "drawing the right diagram" — picking a type, getting the layout, fighting the syntax — pushes writers to fall back on prose for things that should obviously be visual. Readers then have to mentally re-render that prose into the diagram the writer didn't draw.
-
-This skill exists to invert the default. "Could this be a diagram?" goes from a rare consideration to a first thought. The complexity budget exists so the answer isn't "yes, a massive one" but "yes, and that means this paragraph is actually two paragraphs."
+零依赖，stdlib only。
 
 ## FAQ
 
-**Why these specific numbers?** They're opinionated defaults from my own taste. Fork and tune `LIMITS` in [`tech-writing/scripts/lint_article.py`](tech-writing/scripts/lint_article.py).
+**为什么是这些具体数字？** 是我个人写作 / 阅读品味的取舍。觉得不合理就 fork 改 [`tech-writing/scripts/lint_article.py`](tech-writing/scripts/lint_article.py) 里的 `LIMITS` dict。
 
-**Why mermaid only?** Mermaid renders in GitHub, GitLab, most IDEs, and most static-site generators without extra tooling. PlantUML / D2 / Graphviz support would mean: extra installs for users, more diagram-type detection logic, and more example diversity. PRs welcome.
+**为什么只支持 mermaid？** 因为 mermaid 在 GitHub / GitLab / 大部分 IDE 和静态站点生成器里都能直接渲染，零额外依赖。加 PlantUML / D2 / Graphviz 意味着用户要额外装东西、lint 要加更多图类型检测、examples 要再做一套。PR 欢迎。
 
-**Does the linter actually render the diagrams?** No — it parses mermaid with regex. It catches structural issues (too many nodes, missing labels, naked IDs, embedded file refs) but won't catch every syntax error. For full syntactic validation, install [`mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) and run `mmdc` manually.
+**lint 会真的渲染图来验语法吗？** 不会——它用正则解析 mermaid，能抓结构性问题（节点超、缺标签、裸 ID、嵌行号），但不保证语法 100% 合法。要全套验证请装 [`mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) 手动跑 `mmdc`。
 
-**Can I disable specific lint rules?** Not via config yet. For now: fork and edit. PRs for a `.tech-writing.toml` config would be welcome.
+**能配置关掉某条规则吗？** 暂时没做配置层。要关请 fork 改脚本。`.tech-writing.toml` 这类配置欢迎 PR。
 
-**Why is the skill loaded by default in every session?** It isn't — Claude Code only invokes a skill when your prompt matches its `description`. The description here filters for technical-writing intent; other sessions won't see it.
+**每次 CC 会话都加载吗？** 不——CC 只在你 prompt 匹配 skill 的 `description` 时才召唤它。不写技术文章的对话不受影响。
 
-**What CC version is required?** Skills with bundled scripts work on Claude Code v2.1.x and later. Verified on v2.1.145.
+**需要哪个 CC 版本？** 带 bundled scripts 的 skill 在 CC v2.1.x 及以后稳定可用，实测 v2.1.145。
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT。见 [LICENSE](LICENSE)。
 
 ## Author
 
-Feedback, issues, and PRs welcome.
+[@eastonsuo](https://github.com/eastonsuo) · 反馈 / issue / PR 都欢迎。
