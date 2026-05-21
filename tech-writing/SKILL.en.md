@@ -1,6 +1,6 @@
 ---
 name: tech-writing
-description: Use when the user asks to write a technical article, design document, "how X works" explainer, architecture writeup, post-mortem, or technical blog post. Pushes diagrams (mermaid) to the front as a primary expressive tool — not decoration — while keeping each diagram precise, focused, and scaffolded with prose. Triggers on phrases like "write an article about…", "explain how … works", "document the design of …", "write a post-mortem / design doc", "写一篇关于…的文章", "解释一下…的原理/设计".
+description: Use when writing tech articles, design docs, or "how X works" explainers. Pushes mermaid diagrams as primary tool, lint-checks every one. 触发：写…文章 / 解释…原理 / design doc / explain how X works.
 ---
 
 # Tech writing — diagrams as a first-class tool, but each one held to a high bar

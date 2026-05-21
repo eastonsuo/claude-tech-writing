@@ -63,15 +63,40 @@ When you ask Claude Code to write a technical article / design doc / post-mortem
 
 ## Install
 
+Installs on both **Claude Code** and **Claude.ai chat / Claude Desktop** (Pro / Max / Team / Enterprise). Same format both places (the [Agent Skills open standard](https://support.claude.com/en/articles/12512180-use-skills-in-claude)).
+
+### Claude Code (CLI / IDE plugins / claude.ai/code)
+
 ```bash
 git clone https://github.com/eastonsuo/claude-tech-writing
 cd claude-tech-writing
 ./install.sh
 ```
 
-The install script symlinks `tech-writing/` into `~/.claude/skills/tech-writing/`. Restart Claude Code if it's running.
+Symlinks `tech-writing/` into `~/.claude/skills/tech-writing/`. Restart Claude Code if it's running.
 
 Uninstall: `rm ~/.claude/skills/tech-writing`.
+
+### Claude.ai chat / Claude Desktop (Pro+, Code Execution enabled)
+
+Two paths:
+
+**A. Download the prebuilt ZIP** → grab `tech-writing.zip` from [Releases](https://github.com/eastonsuo/claude-tech-writing/releases/latest)
+
+**B. Build locally**
+```bash
+git clone https://github.com/eastonsuo/claude-tech-writing
+cd claude-tech-writing
+./build-zip.sh   # produces tech-writing.zip
+```
+
+Then in Claude.ai web (or Claude Desktop chat app):
+
+1. **+** button next to the chat input → **Skills** → **Add skill**
+2. Select `tech-writing.zip`
+3. Once uploaded, the skill auto-invokes in all new conversations — same trigger phrases as in CC
+
+Uninstall: + button → Skills → Manage skills → delete.
 
 ## Use
 

@@ -63,6 +63,10 @@
 
 ## 安装
 
+skill 在 **Claude Code** 和 **Claude.ai 聊天 / Claude Desktop**（Pro / Max / Team / Enterprise）上都能装，格式完全一样（都是 [Agent Skills 开放标准](https://support.claude.com/en/articles/12512180-use-skills-in-claude)）。
+
+### Claude Code（CLI / IDE 插件 / claude.ai/code）
+
 ```bash
 git clone https://github.com/eastonsuo/claude-tech-writing
 cd claude-tech-writing
@@ -72,6 +76,27 @@ cd claude-tech-writing
 `install.sh` 把 `tech-writing/` 软链到 `~/.claude/skills/tech-writing/`。重启 Claude Code 即可。
 
 卸载：`rm ~/.claude/skills/tech-writing`。
+
+### Claude.ai 聊天 / Claude Desktop（需 Pro 及以上、开启 Code Execution）
+
+两种方式选一：
+
+**方式 A：下载预打好的 ZIP** → [Releases](https://github.com/eastonsuo/claude-tech-writing/releases/latest) 下载 `tech-writing.zip`
+
+**方式 B：本地构建**
+```bash
+git clone https://github.com/eastonsuo/claude-tech-writing
+cd claude-tech-writing
+./build-zip.sh   # 生成 tech-writing.zip
+```
+
+然后在 Claude.ai 网页（或 Claude Desktop 聊天 app）：
+
+1. 对话输入框旁的 **+** 按钮 → **Skills** → **Add skill**
+2. 选 `tech-writing.zip` 上传
+3. 上传成功后所有新对话自动触发，trigger 词同 CC
+
+卸载：+ 按钮 → Skills → Manage skills → 删除。
 
 ## 使用
 
