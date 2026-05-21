@@ -1,6 +1,6 @@
 ---
 name: tech-writing
-description: Use when writing tech articles, design docs, or "how X works" explainers. Pushes mermaid diagrams as primary tool, lint-checks every one. 触发：写…文章 / 解释…原理 / design doc / explain how X works.
+description: Use whenever the user asks to write or create a markdown (.md) document — technical articles, design docs, postmortems, "how X works" explainers, research reports, PRDs, READMEs, or any other .md file. Pushes mermaid diagrams as primary expressive tool, applies depth-article conventions (three-part diagram explanation, scenario-based chapters, [toc] header, flush-left code fences), lint-checks every diagram. 触发：写 / 创建任何 .md 文档 — 技术文章、design doc、复盘、how X works、调研报告、PRD、README、产品实现方案、工程笔记等。
 ---
 
 # 写技术文章 — 多用图，但每张图都要画准
