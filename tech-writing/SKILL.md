@@ -118,6 +118,29 @@ description: Use when writing tech articles, design docs, or "how X works" expla
 
 ## 风格约束（让所有图看起来是一套）
 
+### 代码块 ``` 必须顶格写
+
+任何 fenced code block 的开闭 ` ``` `**必须在行首**（column 0），前面不能有空格 / Tab / 列表标记 / 引用标记等任何字符。
+
+```markdown
+正确：
+
+​```python
+def foo(): ...
+​```
+
+
+错误（缩进了 3 空格，部分渲染器解析不出）：
+
+   ​```python
+   def foo(): ...
+   ​```
+```
+
+**为什么严格**：CommonMark 标准下"缩进 4+ 空格"会被当成 indented code block；缩进 1-3 空格行为依赖渲染器（GitHub OK、印象笔记 / Typora / Obsidian 之间不一致），**最稳的做法是永远顶格**。
+
+特别注意"列表项里嵌代码块"——许多人会习惯性给 ``` 缩进对齐列表，**这是常见 bug 来源**。解决：要么把代码块从列表里挪出来作为独立段落，要么用列表项的下一段（空行后顶格 ``` ）。
+
 ### 文章开头加 `[toc]`
 
 文章第一行（标题 / frontmatter 之后）加一行 `[toc]`，让支持的 markdown 渲染器（Typora、印象笔记、Obsidian + TOC 插件、多数 Chinese markdown editor）自动生成目录。
@@ -244,18 +267,23 @@ subgraph storage["持久化层"]
    - 删掉任何只是"装饰"的图
    - 检查有没有应该有图但漏画的段落（出现 ≥ 3 对象 + 关系、或多步流程的地方）
    - 检查全篇色彩语义是否一致
-7. **跑 lint**：
-   ```bash
-   python3 ${CLAUDE_SKILL_DIR}/scripts/lint_article.py <生成的文件>
-   ```
-   看到任何 ❌ 都要修。脚本会检查：
-   - 各类图复杂度（节点 / participants / messages / states / transitions / entities）是否超限
-   - flowchart 的边标签覆盖率
-   - subgraph 是否有显示名字
-   - 单字母 / 双字母裸节点（A/B/S1）
-   - 节点标签里有没有嵌 `file.ext:行号`
-   - flowchart 方向是否全篇一致
-   - 每张图前后是否有 ≥ 30 字符的散文
+7. **跑 lint**
+
+跑 lint 命令：
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/lint_article.py <生成的文件>
+```
+
+看到任何 ❌ 都要修。脚本会检查：
+
+- 各类图复杂度（节点 / participants / messages / states / transitions / entities）是否超限
+- flowchart 的边标签覆盖率
+- subgraph 是否有显示名字
+- 单字母 / 双字母裸节点（A/B/S1）
+- 节点标签里有没有嵌 `file.ext:行号`
+- flowchart 方向是否全篇一致
+- 每张图前后是否有 ≥ 30 字符的散文
 
 **深度文章额外步骤**（设计文档 / 工程复盘 / "How X works"）：
 
